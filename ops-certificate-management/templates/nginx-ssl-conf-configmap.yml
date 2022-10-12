@@ -26,6 +26,7 @@ data:
             server_name  localhost;
             ssl_certificate      /app/cert/www.rtg-demo-opt.com-server.crt;
             ssl_certificate_key  /app/cert/www.rtg-demo-opt.com-key.key;
+            ssl_password_file  /app/cert/passphrase;
             ssl_protocols TLSv1.2;
             ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:!EECDH+3DES:!RSA+3DES:!MD5;
             ssl_prefer_server_ciphers on;
