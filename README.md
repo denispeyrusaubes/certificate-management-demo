@@ -23,7 +23,7 @@ Présenter une solution qui met l’accent sur les points suivants
 
 ## Arborescence de la démo
 
-La démo se décompose en 3 charts helms et un répertoire complémentaire :
+La démo se décompose en 3 charts helms :
 
 * `ops-certificate-management`
 
