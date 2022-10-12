@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "webapp-springboot.fullname" . }}
+  name: demo-security-springboot
   labels:
-    {{- include "webapp-springboot.labels" . | nindent 4 }}
+    app: demo-security-springboot
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - port: 8443
+      targetPort: 443
   selector:
-    {{- include "webapp-springboot.selectorLabels" . | nindent 4 }}
+    app: demo-security-springboot
+  type: LoadBalancer

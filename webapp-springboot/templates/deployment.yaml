@@ -1,61 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "webapp-springboot.fullname" . }}
+  name: demo-security-springboot
   labels:
-    {{- include "webapp-springboot.labels" . | nindent 4 }}
+    app: demo-security-springboot
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "webapp-springboot.selectorLabels" . | nindent 6 }}
+      app: demo-security-springboot
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "webapp-springboot.selectorLabels" . | nindent 8 }}
+        app: demo-security-springboot
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "webapp-springboot.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      - name: springboot
+        image: retengr/demo-springboot:0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        volumeMounts: 
+        - name: pkcs12
+          mountPath: /pkcs12       
+
+
+      initContainers:
+      - name: init-certificates
+        image: retengr/initcertificates:0.0.2
+        imagePullPolicy: Always
+        command: ['sh', '-c',"/createPkcs12.sh"]
+#        command: ['sh', '-c', "ls"]
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /app/cert
+          - name: pkcs12
+            mountPath: /pkcs12
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: certs-secret-www.rtg-demo-opt.com
+          items:
+            - key: www.rtg-demo-opt.com-cert
+              path: www.rtg-demo-opt.com-server.crt
+            - key: www.rtg-demo-opt.com-server-key
+              path: www.rtg-demo-opt.com-key.key        
+      - name: pkcs12
+        emptyDir: {}

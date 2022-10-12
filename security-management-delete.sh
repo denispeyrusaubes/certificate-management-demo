@@ -1,0 +1,1 @@
+helm delete security-management
