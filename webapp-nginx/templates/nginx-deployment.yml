@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-security
+  labels:
+    app: demo-security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-security
+  template:
+    metadata:
+      labels:
+        app: demo-security
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /app/cert
+          - name: config-volume
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: certs-secret
+          items:
+            - key: www.rtg-demo-opt.com-cert
+              path: www.rtg-demo-opt.com-server.crt
+            - key: www.rtg-demo-opt.com-server-key
+              path: www.rtg-demo-opt.com-key.key
+            - key: passphrase
+              path: passphrase
+
+      - name: config-volume
+        configMap:
+          name: nginx-ssl-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf

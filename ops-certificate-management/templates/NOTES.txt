@@ -1,0 +1,2 @@
+Certificat et clé privée installés 
+Remarque : le secret ne devrait pas être créé comme cela, mais poussé par une PKI
