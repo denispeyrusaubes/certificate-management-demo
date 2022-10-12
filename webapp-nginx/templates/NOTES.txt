@@ -1,0 +1,8 @@
+L'application de test est déployée.
+
+Le pod nginx utilise le secret dans lequel le certificat et la clé privée sont déclaré
+
+Vous pouvez vérifier que ce dernier est pris en compte en utilisant les commandes suivantes :
+
+kubectl port-forward service/demo-security 8443:443
+echo | openssl s_client -showcerts -servername localhost -connect localhost:8443 2>/dev/null | openssl x509 -inform pem -noout -text

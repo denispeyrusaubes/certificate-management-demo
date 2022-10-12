@@ -26,14 +26,12 @@ spec:
       volumes:
       - name: secret-volume
         secret:
-          secretName: certs-secret
+          secretName: certs-secret-www.rtg-demo-opt.com
           items:
             - key: www.rtg-demo-opt.com-cert
               path: www.rtg-demo-opt.com-server.crt
             - key: www.rtg-demo-opt.com-server-key
               path: www.rtg-demo-opt.com-key.key
-            - key: passphrase
-              path: passphrase
 
       - name: config-volume
         configMap:

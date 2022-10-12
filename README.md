@@ -30,57 +30,20 @@ Plusieurs charts sont utilisés :
 
 # génération des éléments de sécurité
 
-Remaque : les commandes suivantes sont déja exécutées et leur résultat son en conf (ce n'est évidemment pas une bonne pratique, mais c'est pour la démo !)
+Remarque : les commandes suivantes sont déja exécutées et leur résultat son en conf (ce n'est évidemment pas une bonne pratique, mais c'est pour la démo !)
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout  server.key -out ca.crt -subj "/C=NC/C=NC/CN=www.rtg-demo-opt.com" 
 
-- Génération du CA
-```
-cd certs-artifacts
+# Vérification
 
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ca.key -out ca.crt
+kubectl port-forward service/demo-security 8443:443
 
-Country Name (2 letter code) []:NC
-State or Province Name (full name) []:NC
-Locality Name (eg, city) []:Noumea
-Organization Name (eg, company) []:OPT
-Organizational Unit Name (eg, section) []:test
-Common Name (eg, fully qualified host name) []:www.rtg-demo-opt.com
-Email Address []:denis@retengr.com
+echo | openssl s_client -showcerts -servername localhost -connect localhost:8443 2>/dev/null | openssl x509 -inform pem -noout -text
 
 
-
-- Génération du cértificat SSL
-```
-# Génération de la clé privée du serveur
-# openssl genrsa -out server.key 2048
-openssl genrsa  -aes256 -out server.key 4096
-
-
-# CSR
-cat csr.conf
-openssl req -new -key server.key -out server.csr -config csr.conf
-
-# Generation du certificat
-openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key \
-    -CAcreateserial -out server.crt -days 10000 \
-    -extfile csr.conf
-```
-
-# Déclaration des ressources dans le chart `ops-certificate-management`
-
-## Pense bête
-
-Pour information, les fichiers des ressources présents dans ce chart ont été générés à l'aide la commande suivante. Attention, le `--dry-run` est ignoré, les ressources sont donc réellement créées, il faut les supprimer ensuite ;)
-
-```
-# le répertoire resource contient le fichier de conf
-kubectl create configmap nginx-ssl-conf --from-file=resources/ -o yaml --dry-run\n
-
-kubectl create secret generic certs-secret \
---from-file=www.rtg-demo-opt.com-cert=server.crt \
---from-file=www.rtg-demo-opt.com-server-key=server.key --dry-run=client -o yaml
-```
 
 ## Création des ressources
 
 ```
 helm install security-management ./ops-certificate-management
+helm install demo-app-nginx ./webapp-nginx
+```
