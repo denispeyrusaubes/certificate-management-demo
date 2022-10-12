@@ -1,1 +1,4 @@
 Springboot app deployed !
+
+testhost=$(kubectl get service/demo-security-springboot --output=jsonpath="{.status.loadBalancer.ingress[0]['hostname']}")
+echo | openssl s_client -showcerts -servername $testhost -connect $testhost:8443 2>/dev/null | openssl x509 -inform pem -noout -text

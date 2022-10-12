@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: springboot
-        image: retengr/demo-springboot:0.0.1
+        image: retengr/demo-springboot:0.0.2
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

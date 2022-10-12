@@ -1,8 +1,8 @@
-mvn package
+#mvn package
 
 # Build on Linux
-#docker build -t retengr/demo-springbot:0.0.1 .
-#docker push retengr/demo-springbot:0.0.1
+#docker build -t retengr/demo-springboot:0.0.2 .
+#docker push retengr/demo-springboot:0.0.2
 
 # Building on Apple M1 
 echo "Building from Apple M1"
