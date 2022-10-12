@@ -1,6 +1,6 @@
 # Build on Linux
-#docker built -t retengr/retengr/initcertificates:0.0.2 .
-#docker push retengr/retengr/initcertificates:0.0.2
+#docker build -t retengr/initcertificates:0.0.2 .
+#docker push retengr/initcertificates:0.0.2
 
 # Building on Apple M1 
 echo "Building initCertificatesfrom Apple M1"

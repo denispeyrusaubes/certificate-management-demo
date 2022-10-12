@@ -47,3 +47,8 @@ echo | openssl s_client -showcerts -servername localhost -connect localhost:8443
 helm install security-management ./ops-certificate-management
 helm install demo-app-nginx ./webapp-nginx
 ```
+
+# PKCS12
+
+
+openssl pkcs12 -export -out server.p12 -inkey server.key -in ca.crt -password pass:denis
