@@ -10,7 +10,7 @@ Le code de cette démo est sur mon répo :
 
 # Environnement de test
 
-Cette démo a été déployée sur un cluster K9S déployé sur AWS (EKS).
+Cette démo a été déployée sur un cluster K8S déployé sur AWS (EKS).
 
 # Objectifs
 
