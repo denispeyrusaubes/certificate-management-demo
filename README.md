@@ -1,5 +1,3 @@
-# Ressources de la démo
-
 # Environnement de test
 
 Cette démo a été déployée sur un cluster K8S déployé sur AWS (EKS).
