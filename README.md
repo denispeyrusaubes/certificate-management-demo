@@ -5,9 +5,6 @@ De ce que j’ai compris, les certificats et clés privés sont embarqués dans 
 
 # Ressources
 
-Le code de cette démo est sur mon répo : 
-[https://github.com/denispeyrusaubes/certificate-management-demo](https://github.com/denispeyrusaubes/certificate-management-demo)
-
 # Environnement de test
 
 Cette démo a été déployée sur un cluster K8S déployé sur AWS (EKS).
@@ -16,7 +13,7 @@ Cette démo a été déployée sur un cluster K8S déployé sur AWS (EKS).
 
 Présenter une solution qui met l’accent sur les points suivants
 
-- La gestion des informations de sécurité (certificat, clés privées) sont à la charge des OPS. Les développeurs de sont pas supposés y accéder. Ils seront donc stockés dans un secret appelé `certs-secret-www.rtg-demo-opt.com`
+- La gestion des informations de sécurité (certificat, clés privées) sont à la charge des OPS. Les développeurs de sont pas supposés y accéder. Ils seront donc stockés dans un secret appelé `certs-secret-www.rtg-demo-dirisi.com`
 - Les pods qui auront besoin du certificat et de la clé privée utiliseront donc ce secret.
 
 # Présentation de la démo :
@@ -31,14 +28,14 @@ La démo se décompose en 3 charts helms :
     - La clé privée
     - le certificat autosigné
 
-    Ces deux informations seront regroupées dans un `secret`Kubernetes appelé `certs-secret-www.rtg-demo-opt.com`.
+    Ces deux informations seront regroupées dans un `secret` Kubernetes appelé `certs-secret-www.rtg-demo-dirisi.com`.
 
     le répertoire `certs-artifacts` contient les éléments de sécurité nécessaires à la mise en place du POC, et plus précisemment des ressources `ops-certificate-management` (Le certificat auto signé et la clé privée)
 
-    Le certificat autosigné et la clé privée ont été générés de la façon suivante, et protège l'accès à un site web dont l'url est `www.rtg-demo-opt.com`.
+    Le certificat autosigné et la clé privée ont été générés de la façon suivante, et protège l'accès à un site web dont l'url est `www.rtg-demo-dirisi.com`.
 
     ```
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout  server.key -out ca.crt -subj "/C=NC/C=NC/CN=www.rtg-demo-opt.com" 
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout  server.key -out ca.crt -subj "/C=NC/C=NC/CN=www.rtg-demo-dirisi.com" 
     ```
 
     > Aucune passphrase n'a été positionnée par mesure de simplification. Ce n'est pas une bonne pratique, mais cela permet de simplifier un peu  la démonstration
@@ -66,11 +63,11 @@ Les OPS se contentent de déployer le chart contenu dans `ops-certificate-manage
 helm install security-management ./ops-certificate-management
 ```
 
-Ce chart contient une seule ressource de type secret `certs-secret-www.rtg-demo-opt.com`:
+Ce chart contient une seule ressource de type secret `certs-secret-www.rtg-demo-dirisi.com`:
 
 ```
-$ kubectl describe secrets/certs-secret-www.rtg-demo-opt.com
-Name:         certs-secret-www.rtg-demo-opt.com
+$ kubectl describe secrets/certs-secret-www.rtg-demo-dirisi.com
+Name:         certs-secret-www.rtg-demo-dirisi.com
 Namespace:    default
 Labels:       app.kubernetes.io/managed-by=Helm
 Annotations:  meta.helm.sh/release-name: security-management
@@ -80,20 +77,18 @@ Type:  Opaque
 
 Data
 ====
-www.rtg-demo-opt.com-cert:        1078 bytes
-www.rtg-demo-opt.com-server-key:  1704 bytes
+www.rtg-demo-dirisi.com-cert:        1078 bytes
+www.rtg-demo-dirisi.com-server-key:  1704 bytes
 
 ```
-
 Il contient le certificat et la clé privée.
 
 J'ai procédé de la façon suivante pour générer le fichier du secret :
 ``` 
 # cd certs-artifacts
 
-# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout  server.key -out ca.crt -subj "/C=NC/C=NC/CN=www.rtg-demo-opt.com" 
+# kubectl create secret generic certs-secret-www.rtg-demo-dirisi.com --from-file=www.rtg-demo-dirisi.com-cert=ca.crt --from-file=www.rtg-demo-dirisi.com-server-key=server.key --dry-run=client -o yaml > ../templates/certs-secret-www.rtg-demo-dirisi.com.yml
 
-# kubectl create secret generic my-secret --from-file=www.rtg-demo-opt.com-cert=ca.crt --from-file=www.rtg-demo-opt.com-server-key=server.key -o yaml > ../templates/certs-secret-www.rtg-demo-opt.com.yml
 ``` 
 
 :exclamation: **Le rôle des ops est maintenant terminé**
@@ -131,12 +126,12 @@ Le paramétrage du [Pod Nginx](https://github.com/denispeyrusaubes/certificate-m
       volumes:
       - name: secret-volume
         secret:
-          secretName: certs-secret-www.rtg-demo-opt.com
+          secretName: certs-secret-www.rtg-demo-dirisi.com
           items:
-            - key: www.rtg-demo-opt.com-cert
-              path: www.rtg-demo-opt.com-server.crt
-            - key: www.rtg-demo-opt.com-server-key
-              path: www.rtg-demo-opt.com-key.key
+            - key: www.rtg-demo-dirisi.com-cert
+              path: www.rtg-demo-dirisi.com-server.crt
+            - key: www.rtg-demo-dirisi.com-server-key
+              path: www.rtg-demo-dirisi.com-key.key
 
       - name: config-volume
         configMap:
@@ -148,7 +143,7 @@ Le paramétrage du [Pod Nginx](https://github.com/denispeyrusaubes/certificate-m
 
 
 
--  `/app/cert` : nom choisi par mes soins. Je monte le secret `certs-secret-www.rtg-demo-opt.com` sur ce répertoire. Les valeurs déclarées dans ce fichiers deviennent maintenant accessible comme fichier dans le pod.
+-  `/app/cert` : nom choisi par mes soins. Je monte le secret `certs-secret-www.rtg-demo-dirisi.com` sur ce répertoire. Les valeurs déclarées dans ce fichiers deviennent maintenant accessible comme fichier dans le pod.
 - `/etc/nginx/nginx.conf` : il est possible de substituer le fichier en standard dans l’image à l’aide d’un `ConfigMap` créé précédemment :[nginx-ssl-conf-configmap.yml](https://github.com/denispeyrusaubes/certificate-management-demo/blob/master/webapp-nginx/templates/nginx-ssl-conf-configmap.yml). Ce fichier fait le paramétrage SSL en faidant référence à la clé privée et au certificat maintenant accessible dans `/app/cert`. Ce fichier pourra évidemment être adapté à votre contexte pour paramétrer votre application web.
 
 Déploiement de l'application nginx :
@@ -169,11 +164,11 @@ Certificate:
         Version: 1 (0x0)
         Serial Number: 14467228418487886182 (0xc8c5eb9890682166)
     Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C=NC, C=NC, CN=www.rtg-demo-opt.com
+        Issuer: C=NC, C=NC, CN=www.rtg-demo-dirisi.com
         Validity
             Not Before: Oct 12 04:05:24 2022 GMT
             Not After : Oct 12 04:05:24 2023 GMT
-        Subject: C=NC, C=NC, CN=www.rtg-demo-opt.com
+        Subject: C=NC, C=NC, CN=www.rtg-demo-dirisi.com
         ...
 ```
 
@@ -186,16 +181,16 @@ La mise en place de ssl avec Springboot est un peu plus complexe.
 
 En effet, le certificat et la clé privée doivent-être stockés dans un coffre PKCS12 afin de pouvoir être utilsé par votre application Java.
 
-Une étape de transformation des informations contenues dans le secret `certs-secret-www.rtg-demo-opt.com` ne sont pas au bon format.
+Une étape de transformation des informations contenues dans le secret `certs-secret-www.rtg-demo-dirisi.com` ne sont pas au bon format.
 
 :exclamation: La JVM sait manipuler des coffres sécurisés dans un format `pksc12`. Nous allons donc devoir générer ce fichier à partir du secret qui contient le certificat et la clé privé.
 
 Pour cela, j'ai utilisé un `initContainer` qui permettra de faire cette transformation et de mettre le fichier `secret.p12` à disposition de l'application Springboot. 
 
-La déclaration de cet `initContainer` est visible [ici](https://github.com/denispeyrusaubes/certificate-management-demo/blob/master/webapp-springboot/templates/deployment.yaml). On notera que l'`initContainer` monte le secret `certs-secret-www.rtg-demo-opt.com` via un volume afin de pouvoir transformer les information contenues en PKCS12. La commande utilisée par l'`initcontainer` est :
+La déclaration de cet `initContainer` est visible [ici](https://github.com/denispeyrusaubes/certificate-management-demo/blob/master/webapp-springboot/templates/deployment.yaml). On notera que l'`initContainer` monte le secret `certs-secret-www.rtg-demo-dirisi.com` via un volume afin de pouvoir transformer les information contenues en PKCS12. La commande utilisée par l'`initcontainer` est :
 
 ```
-openssl pkcs12 -name myAlias -export -out /pkcs12/server.p12 -inkey /app/cert/www.rtg-demo-opt.com-key.key  -in /app/cert/www.rtg-demo-opt.com-server.crt -password pass:denis
+openssl pkcs12 -name myAlias -export -out /pkcs12/server.p12 -inkey /app/cert/www.rtg-demo-dirisi.com-key.key  -in /app/cert/www.rtg-demo-dirisi.com-server.crt -password pass:denis
 ```
 
 > Vous noterez le mot de passe "denis" codé en dur...
@@ -220,18 +215,18 @@ Certificate:
         Version: 1 (0x0)
         Serial Number: 14467228418487886182 (0xc8c5eb9890682166)
     Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C=NC, C=NC, CN=www.rtg-demo-opt.com
+        Issuer: C=NC, C=NC, CN=www.rtg-demo-dirisi.com
         Validity
             Not Before: Oct 12 04:05:24 2022 GMT
             Not After : Oct 12 04:05:24 2023 GMT
-        Subject: C=NC, C=NC, CN=www.rtg-demo-opt.com
+        Subject: C=NC, C=NC, CN=www.rtg-demo-dirisi.com
 ```
 
-:heart_eyes: Là encore, le certificat retourné est bien celui qui a été déclaré dans le secret `certs-secret-www.rtg-demo-opt.com` par les `OPS`.
+:heart_eyes: Là encore, le certificat retourné est bien celui qui a été déclaré dans le secret `certs-secret-www.rtg-demo-dirisi.com` par les `OPS`.
 
 # Conclusion
 
-`certs-secret-www.rtg-demo-opt.com` est un endroit unique de déclaration du certificat et de la clé privée.
+`certs-secret-www.rtg-demo-dirisi.com` est un endroit unique de déclaration du certificat et de la clé privée.
 
 Nous sommes parvenu à exploiter ce secret depuis un pod hébergeant `nginx` et un autre utilisant `Springboot`.
 
@@ -240,7 +235,7 @@ C'était bien l'objet de cette démo.
 # Remarque d'autre général sur cette démo
 
 Même si elle rempli ces objectifs initiaux, elle reste imparfaite :
-- J'utilise un certificat autosigné (quelques modifications permettront d'utiliser les certificats de l'opt)
+- J'utilise un certificat autosigné 
 - pas de passphrase
 - le mot de passe du coffre pkcs est en dur dans mon code ("denis")
 - Je n'ai pas fais le lien avec les ingress éventuels qui seront positionnés en amont des pods et services. 

@@ -27,7 +27,7 @@ spec:
 
       initContainers:
       - name: init-certificates
-        image: retengr/initcertificates:0.0.2
+        image: retengr/initcertificates:0.0.2-dirisi
         imagePullPolicy: Always
         command: ['sh', '-c',"/createPkcs12.sh"]
 #        command: ['sh', '-c', "ls"]
@@ -39,11 +39,11 @@ spec:
       volumes:
       - name: secret-volume
         secret:
-          secretName: certs-secret-www.rtg-demo-opt.com
+          secretName: certs-secret-www.rtg-demo-dirisi.com
           items:
-            - key: www.rtg-demo-opt.com-cert
-              path: www.rtg-demo-opt.com-server.crt
-            - key: www.rtg-demo-opt.com-server-key
-              path: www.rtg-demo-opt.com-key.key        
+            - key: www.rtg-demo-dirisi.com-cert
+              path: www.rtg-demo-dirisi.com-server.crt
+            - key: www.rtg-demo-dirisi.com-server-key
+              path: www.rtg-demo-dirisi.com-key.key        
       - name: pkcs12
         emptyDir: {}
