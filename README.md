@@ -1,9 +1,4 @@
-# Constat :
-
-Une gestion « à la main » des certificats qui sont nécessaires aux PODs a été mise en place.
-De ce que j’ai compris, les certificats et clés privés sont embarqués dans les POD qui en ont besoin.
-
-# Ressources
+# Ressources de la démo
 
 # Environnement de test
 
